@@ -1,0 +1,5 @@
+[webserver]
+10.129.202.69
+# usuario global
+[all:vars]
+ansible_user=agent

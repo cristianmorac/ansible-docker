@@ -1,0 +1,24 @@
+services:
+    mysql:
+        image: elestio/mysql:8.0
+        restart: always
+        hostname: mysql
+        volumes:
+            - ./storage/mysql:/var/lib/mysql
+        env_file:
+            - ./.env
+        ports:
+            - "10.129.202.69:50778:3306"
+
+    glpi:
+        image: elestio/glpi:latest
+        restart: always
+        hostname: glpi
+        ports:
+            - "10.129.202.69:22571:80"
+        volumes:
+            - /etc/timezone:/etc/timezone:ro
+            - /etc/localtime:/etc/localtime:ro
+            - ./storage/var/www/html/glpi/:/var/www/html/glpi
+        environment:
+            - TIMEZONE=America/Bogota

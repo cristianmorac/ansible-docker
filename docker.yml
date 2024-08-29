@@ -1,0 +1,75 @@
+- name: Install Docker
+  hosts: webserver
+  become: yes
+  tasks:
+    - name: update and upgrade
+      apt:
+        upgrade: yes
+        update_cache: yes
+        force_apt_get: yes
+
+    - name: Remove docker Package
+      package:
+        name: "{{item}}"
+        state: absent
+      loop: ['docker', 'docker-engine', 'docker-doc', 'docker.io', 'containerd',
+       'runc', 'docker-compose-plugin', 'docker-compose', 'podman-docker' ]
+    
+    - name: Install aptitude
+      package:
+        name: aptitude
+        state: latest
+        update_cache: yes
+        force_apt_get: yes
+    
+    - name: Install required system package
+      package:
+        name: "{{item}}"
+        state: latest
+        update_cache: yes
+      loop: ['apt-transport-https', 'ca-certificates', 'curl', 'python3-pip', 'virtualenv', 'python3-setuptools',
+       'gnupg', 'lsb-release','software-properties-common']
+    
+    - name: Add Docker GPG apt key
+      get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: 'a+r'
+        force: true
+    
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable
+        state: present
+    
+    - name: update and upgrade
+      apt:
+        upgrade: yes
+        update_cache: yes
+        force_apt_get: yes
+    
+    - name: install docker package
+      apt:
+        name: "{{item}}"
+        state: latest
+      loop: ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-compose-plugin',
+       'docker-compose', 'docker-buildx-plugin']
+
+    - name: copy file docker-compose
+      copy:
+        src: docker-compose.yml
+        dest: /home/agent
+    
+    - name: copy .env
+      copy:
+        src: .env
+        dest: /home/agent
+    
+    - name: Execute Docker docker-compose
+      command:
+        cmd: docker compose up -d
+        chdir: /home/agent/
+
+
+
+  
