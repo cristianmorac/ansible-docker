@@ -54,6 +54,31 @@
         state: latest
       loop: ['docker-ce', 'docker-ce-cli', 'containerd.io', 'docker-compose-plugin',
        'docker-compose', 'docker-buildx-plugin']
+    
+    - name: Habilitar docker
+      service:
+        name: docker
+        enabled: yes
+        state: started
+    
+    - name: Habilitar containerd
+      service:
+        name: containerd
+        enabled: yes
+        state: started
+    
+    - name: Crear grupo de docker
+      group:
+        name: docker
+        state: present
+    
+    - name: Agregar al usuario al grupo de Docker
+      user:
+        name: agent
+        shell: /bin/bash
+        state: present
+        groups: agent, docker
+        append: yes
 
     - name: copy file docker-compose
       copy:
